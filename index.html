@@ -1,695 +1,362 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>生日快乐</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC",
-        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-      background: linear-gradient(180deg, #ffe6f0 0%, #fff6fb 45%, #fffaf0 100%);
-      min-height: 100vh;
-      overflow-x: hidden;
-      color: #5b4358;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 24px 16px 48px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .screen {
-      display: none;
-      animation: fadeIn 0.5s ease;
-    }
-
-    .screen.active {
-      display: block;
-    }
-
-    .panel {
-      background: rgba(255, 255, 255, 0.82);
-      border: 2px solid rgba(255,255,255,0.7);
-      backdrop-filter: blur(10px);
-      border-radius: 28px;
-      padding: 28px 20px;
-      box-shadow: 0 12px 40px rgba(255, 128, 170, 0.18);
-      text-align: center;
-    }
-
-    h1, h2 {
-      margin-top: 0;
-      color: #ff5d9e;
-    }
-
-    p {
-      line-height: 1.7;
-      margin: 10px 0;
-    }
-
-    .sub {
-      color: #8f6f84;
-      font-size: 15px;
-    }
-
-    button {
-      appearance: none;
-      border: none;
-      background: linear-gradient(135deg, #ff7fb3, #ff5d9e);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 999px;
-      font-size: 16px;
-      cursor: pointer;
-      box-shadow: 0 8px 20px rgba(255, 93, 158, 0.25);
-      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
-      margin: 8px 6px;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 28px rgba(255, 93, 158, 0.32);
-    }
-
-    button:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .ghost {
-      background: white;
-      color: #ff5d9e;
-      border: 2px solid #ffc5da;
-      box-shadow: none;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .actions {
-      margin-top: 18px;
-    }
-
-    /* 飘浮爱心背景 */
-    .floating {
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    .heart {
-      position: absolute;
-      font-size: 18px;
-      opacity: 0.3;
-      animation: floatUp linear infinite;
-    }
-
-    @keyframes floatUp {
-      from {
-        transform: translateY(100vh) scale(0.8);
-      }
-      to {
-        transform: translateY(-10vh) scale(1.15);
-      }
-    }
-
-    /* 首页 */
-    .big-emoji {
-      font-size: 58px;
-      margin-bottom: 8px;
-    }
-
-    /* 蛋糕 */
-    .cake-scene {
-      margin: 26px auto 12px;
-      width: 280px;
-      height: 270px;
-      position: relative;
-    }
-
-    .cake {
-      position: absolute;
-      left: 50%;
-      bottom: 28px;
-      transform: translateX(-50%);
-      width: 210px;
-      height: 180px;
-    }
-
-    .plate {
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 250px;
-      height: 26px;
-      background: #f3d6e2;
-      border-radius: 999px;
-      box-shadow: inset 0 2px 4px rgba(255,255,255,0.8);
-    }
-
-    .cake-body {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 190px;
-      height: 110px;
-      background: linear-gradient(180deg, #ffa6c9, #ff7fb3);
-      border-radius: 18px 18px 24px 24px;
-      box-shadow: inset 0 -8px 0 rgba(255,255,255,0.18);
-    }
-
-    .cake-top {
-      position: absolute;
-      bottom: 110px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 190px;
-      height: 34px;
-      background: #fff1f6;
-      border-radius: 20px;
-      border: 2px solid rgba(255,255,255,0.8);
-      z-index: 2;
-    }
-
-    .cream-dot {
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      background: white;
-      border-radius: 50%;
-      top: 10px;
-    }
-
-    .bite-mark {
-      position: absolute;
-      right: 18px;
-      top: 78px;
-      width: 0;
-      height: 0;
-      background: #fff6fb;
-      border-radius: 50%;
-      z-index: 5;
-      box-shadow:
-        -18px 10px 0 0 #fff6fb,
-        -2px 22px 0 0 #fff6fb;
-      transition: width 0.3s ease, height 0.3s ease;
-    }
-
-    .candles {
-      position: absolute;
-      width: 150px;
-      left: 50%;
-      bottom: 138px;
-      transform: translateX(-50%);
-      display: flex;
-      justify-content: space-between;
-      z-index: 4;
-    }
-
-    .candle {
-      position: relative;
-      width: 12px;
-      height: 42px;
-      background: repeating-linear-gradient(
-        180deg,
-        #fff,
-        #fff 6px,
-        #ffd3e5 6px,
-        #ffd3e5 12px
-      );
-      border-radius: 6px;
-    }
-
-    .flame {
-      position: absolute;
-      left: 50%;
-      top: -16px;
-      transform: translateX(-50%);
-      width: 14px;
-      height: 18px;
-      background: radial-gradient(circle at 50% 35%, #fff7ae 0%, #ffcc40 52%, #ff8c2f 100%);
-      border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
-      animation: flicker 0.8s infinite alternate;
-      box-shadow: 0 0 12px rgba(255, 185, 56, 0.7);
-    }
-
-    .cake.blown .flame {
-      display: none;
-    }
-
-    @keyframes flicker {
-      from { transform: translateX(-50%) scale(0.95) rotate(-2deg); }
-      to   { transform: translateX(-50%) scale(1.08) rotate(2deg); }
-    }
-
-    /* 礼物盒 */
-    .gift-area {
-      margin: 20px auto 16px;
-      width: 280px;
-      height: 280px;
-      position: relative;
-    }
-
-    .gift-box {
-      position: absolute;
-      left: 50%;
-      bottom: 20px;
-      transform: translateX(-50%);
-      width: 180px;
-      height: 180px;
-      cursor: pointer;
-    }
-
-    .gift-base {
-      position: absolute;
-      bottom: 0;
-      width: 180px;
-      height: 120px;
-      background: linear-gradient(180deg, #8bd3ff, #62bff7);
-      border-radius: 16px;
-      box-shadow: 0 10px 24px rgba(98, 191, 247, 0.28);
-    }
-
-    .gift-lid {
-      position: absolute;
-      top: 18px;
-      width: 180px;
-      height: 42px;
-      background: linear-gradient(180deg, #9ad9ff, #74c9fb);
-      border-radius: 16px;
-      transition: transform 0.5s ease;
-      transform-origin: left bottom;
-    }
-
-    .gift-ribbon-v {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 24px;
-      height: 180px;
-      background: #ffd45b;
-      z-index: 2;
-    }
-
-    .gift-ribbon-h {
-      position: absolute;
-      top: 52px;
-      left: 0;
-      width: 180px;
-      height: 24px;
-      background: #ffd45b;
-      z-index: 2;
-    }
-
-    .gift-bow {
-      position: absolute;
-      top: -4px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      height: 30px;
-      z-index: 4;
-    }
-
-    .gift-bow::before,
-    .gift-bow::after {
-      content: "";
-      position: absolute;
-      width: 28px;
-      height: 22px;
-      border: 6px solid #ffd45b;
-      border-radius: 50% 50% 45% 45%;
-      top: 0;
-    }
-
-    .gift-bow::before {
-      left: 0;
-      transform: rotate(-18deg);
-    }
-
-    .gift-bow::after {
-      right: 0;
-      transform: rotate(18deg);
-    }
-
-    .gift-box.opened .gift-lid {
-      transform: translateY(-52px) rotate(-18deg);
-    }
-
-    .letter {
-      position: absolute;
-      left: 50%;
-      bottom: 76px;
-      transform: translateX(-50%) translateY(30px);
-      width: 210px;
-      background: #fffdf8;
-      border: 2px solid #ffd7e6;
-      border-radius: 18px;
-      padding: 18px 16px;
-      box-shadow: 0 10px 28px rgba(255, 179, 204, 0.22);
-      opacity: 0;
-      transition: all 0.5s ease;
-      z-index: 10;
-    }
-
-    .letter.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-
-    .mini-note {
-      font-size: 14px;
-      color: #876a7c;
-    }
-
-    /* 最终卡片 */
-    .card-letter {
-      text-align: left;
-      max-width: 640px;
-      margin: 20px auto 0;
-      background: linear-gradient(180deg, #fff, #fff8fb);
-      border: 2px solid #ffd8e7;
-      border-radius: 24px;
-      padding: 24px 20px;
-      box-shadow: 0 12px 28px rgba(255, 169, 203, 0.18);
-    }
-
-    .card-letter p {
-      margin: 12px 0;
-      font-size: 16px;
-    }
-
-    .sign {
-      margin-top: 18px;
-      text-align: right;
-      color: #ff5d9e;
-      font-weight: 700;
-    }
-
-    /* 彩带 */
-    .confetti {
-      position: fixed;
-      top: -12px;
-      width: 10px;
-      height: 16px;
-      border-radius: 2px;
-      opacity: 0.9;
-      z-index: 999;
-      animation: confettiFall 2.8s linear forwards;
-    }
-
-    @keyframes confettiFall {
-      to {
-        transform: translateY(110vh) rotate(720deg);
-        opacity: 1;
-      }
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @media (max-width: 520px) {
-      .panel {
-        padding: 22px 14px;
-      }
-
-      h1 {
-        font-size: 28px;
-      }
-
-      h2 {
-        font-size: 24px;
-      }
-
-      .cake-scene,
-      .gift-area {
-        transform: scale(0.95);
-      }
-
-      button {
-        width: calc(100% - 18px);
-        max-width: 320px;
-      }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>生日快乐生成器</title>
+<style>
+  :root{
+    --bg:#f3f0e8;
+    --ink:#111;
+    --panel:#fffdf6;
+    --accent:#ff4d6d;
+    --line:#111;
+    --muted:#746f66;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255,77,109,.10), transparent 28%),
+      radial-gradient(circle at 90% 80%, rgba(70,130,180,.10), transparent 30%),
+      var(--bg);
+    color:var(--ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "PingFang SC","Microsoft YaHei",monospace;
+    padding:24px 14px 50px;
+  }
+  .wrap{max-width:760px;margin:0 auto}
+  .window{
+    background:var(--panel);
+    border:3px solid var(--line);
+    box-shadow:8px 8px 0 var(--line);
+  }
+  .bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 12px;border-bottom:3px solid var(--line);
+    font-weight:800;
+  }
+  .dots{display:flex;gap:6px}
+  .dot{width:12px;height:12px;border:2px solid var(--line);border-radius:50%}
+  main{padding:22px}
+  h1{font-size:clamp(27px,6vw,48px);line-height:1.05;margin:0 0 12px;letter-spacing:-1px}
+  .sub{color:var(--muted);line-height:1.7;margin-bottom:22px}
+  .warning{
+    border:2px dashed var(--line);padding:12px 14px;margin:16px 0 22px;
+    background:#fff8c9;line-height:1.6;
+  }
+  .target{
+    display:flex;gap:10px;justify-content:center;margin:18px 0 24px;flex-wrap:wrap;
+  }
+  .slot{
+    width:70px;height:78px;border:3px solid var(--line);background:#fff;
+    display:grid;place-items:center;font-size:38px;font-weight:900;
+    box-shadow:4px 4px 0 var(--line);
+  }
+  .slot.filled{background:#ffd7df}
+  .screen{
+    border:3px solid var(--line);background:#171717;padding:14px;margin:0 auto 18px;
+    max-width:520px;box-shadow:5px 5px 0 #999;
+  }
+  .grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  }
+  .key{
+    min-height:64px;border:2px solid #8b8b8b;background:#2b2b2b;color:#eee;
+    display:grid;place-items:center;font-size:26px;font-weight:800;user-select:none;
+    transition:.12s ease;
+  }
+  .key.selected{
+    background:#fff;color:#111;border-color:#fff;
+    outline:4px solid var(--accent);
+    transform:scale(1.04);
+  }
+  .console{
+    max-width:520px;margin:0 auto;padding:12px 14px;border:2px solid var(--line);
+    background:#fff;min-height:52px;line-height:1.5;
+  }
+  .controls{
+    max-width:520px;margin:18px auto 0;
+    display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:center;
+  }
+  .dpad{
+    display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(3,58px);
+    justify-content:center;
+  }
+  button{
+    font:inherit;font-weight:900;border:3px solid var(--line);background:#fff;
+    color:#111;cursor:pointer;min-height:48px;box-shadow:4px 4px 0 var(--line);
+    transition:transform .08s ease, box-shadow .08s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  button:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--line)}
+  .up{grid-column:2;grid-row:1}
+  .left{grid-column:1;grid-row:2}
+  .ok{grid-column:2;grid-row:2;background:#ffcfda}
+  .right{grid-column:3;grid-row:2}
+  .down{grid-column:2;grid-row:3}
+  .side{display:flex;flex-direction:column;gap:12px}
+  .tiny{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px;text-align:center}
+  .result{display:none;text-align:center;padding:18px 0 4px}
+  .result.show{display:block;animation:pop .45s ease}
+  .big{
+    font-size:clamp(48px,12vw,92px);font-weight:1000;line-height:1;
+    margin:18px 0 14px;letter-spacing:-3px;
+  }
+  .card{
+    margin:22px auto 0;max-width:520px;border:3px solid var(--line);
+    background:#fff;padding:18px;text-align:left;line-height:1.8;box-shadow:5px 5px 0 var(--line);
+  }
+  .restart{margin-top:18px;padding:10px 16px}
+  .shake{animation:shake .25s linear}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-6px)}
+    75%{transform:translateX(6px)}
+  }
+  @keyframes pop{
+    from{opacity:0;transform:scale(.88) rotate(-1deg)}
+    to{opacity:1;transform:scale(1) rotate(0)}
+  }
+  .confetti{
+    position:fixed;top:-16px;width:10px;height:16px;border:2px solid #111;
+    z-index:99;animation:fall 2.7s linear forwards;
+  }
+  @keyframes fall{
+    to{transform:translateY(110vh) rotate(720deg)}
+  }
+  @media(max-width:600px){
+    main{padding:17px 12px}
+    .controls{grid-template-columns:1fr}
+    .slot{width:58px;height:66px;font-size:31px}
+    .key{min-height:58px;font-size:23px}
+  }
+</style>
 </head>
 <body>
-  <div class="floating" id="floating"></div>
+<div class="wrap">
+  <div class="window">
+    <div class="bar">
+      <span>生日快乐生成器.exe</span>
+      <div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+    </div>
 
-  <div class="container">
-    <!-- 首页 -->
-    <section class="screen active" id="screen1">
-      <div class="panel">
-        <div class="big-emoji">🎀🎂🎁</div>
-        <h1>Happy Birthday, jj</h1>
-        <p>今天虽然我们隔得有点远，<br>但我还是偷偷给你准备了一份线上小礼物。</p>
-        <p class="sub">请点击下面按钮，开始你的生日特别流程 ✨</p>
-        <div class="actions">
-          <button id="startBtn">开始拆礼物</button>
+    <main id="game">
+      <h1>请输入你的生日祝福。</h1>
+      <div class="sub">
+        系统检测到今天有人过生日。<br>
+        由于网页开发者拒绝代写，请寿星本人亲自完成。
+      </div>
+
+      <div class="warning">
+        ⚠️ 规则：不能直接点字。必须使用下面的方向键移动光标，再按「就它了」。<br>
+        目标内容：<b>生日快乐</b>
+      </div>
+
+      <div class="target" aria-label="当前输入">
+        <div class="slot" id="slot0">＿</div>
+        <div class="slot" id="slot1">＿</div>
+        <div class="slot" id="slot2">＿</div>
+        <div class="slot" id="slot3">＿</div>
+      </div>
+
+      <div class="screen" id="screen">
+        <div class="grid" id="grid"></div>
+      </div>
+
+      <div class="console" id="console" aria-live="polite">
+        系统：先找到「生」。不要乱按。
+      </div>
+
+      <div class="controls">
+        <div class="dpad" aria-label="方向控制">
+          <button type="button" class="up" data-move="up">↑</button>
+          <button type="button" class="left" data-move="left">←</button>
+          <button type="button" class="ok" id="selectBtn">就它了</button>
+          <button type="button" class="right" data-move="right">→</button>
+          <button type="button" class="down" data-move="down">↓</button>
+        </div>
+        <div class="side">
+          <button type="button" id="undoBtn">撤销一次人生选择</button>
+          <button type="button" id="randomBtn">我迷路了</button>
         </div>
       </div>
-    </section>
 
-    <!-- 蛋糕 -->
-    <section class="screen" id="screen2">
-      <div class="panel">
-        <h2>第一步：先许愿，再吹蜡烛 🎂</h2>
-        <p id="cakeText">请认真许愿三秒钟，然后点“吹蜡烛”～</p>
-
-        <div class="cake-scene">
-          <div class="cake" id="cake">
-            <div class="candles">
-              <div class="candle"><div class="flame"></div></div>
-              <div class="candle"><div class="flame"></div></div>
-              <div class="candle"><div class="flame"></div></div>
-            </div>
-
-            <div class="cake-top">
-              <div class="cream-dot" style="left:18px;"></div>
-              <div class="cream-dot" style="left:52px;"></div>
-              <div class="cream-dot" style="left:86px;"></div>
-              <div class="cream-dot" style="left:120px;"></div>
-              <div class="cream-dot" style="left:154px;"></div>
-            </div>
-
-            <div class="cake-body"></div>
-            <div class="bite-mark" id="biteMark"></div>
-            <div class="plate"></div>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button id="blowBtn">吹蜡烛</button>
-          <button id="eatBtn" disabled>吃一口蛋糕</button>
-          <button id="toGiftBtn" class="ghost hidden">去拆礼物</button>
-        </div>
+      <div class="tiny">
+        手机请点屏幕按钮。电脑也可以用方向键移动，Enter 确认。<br>
+        是的，为了四个字要操作这么久。这就是仪式感。
       </div>
-    </section>
 
-    <!-- 礼物盒 -->
-    <section class="screen" id="screen3">
-      <div class="panel">
-        <h2>第二步：拆开你的礼物盒 🎁</h2>
-        <p id="giftText">点下面按钮，把礼物盒打开看看～</p>
+      <section class="result" id="result">
+        <div class="big">生日快乐！！</div>
+        <p>恭喜。你成功亲手给自己写下了生日快乐。</p>
+        <p>开发者在整个过程中几乎没有提供任何实质性帮助。</p>
 
-        <div class="gift-area">
-          <div class="gift-box" id="giftBox">
-            <div class="gift-lid"></div>
-            <div class="gift-base"></div>
-            <div class="gift-ribbon-v"></div>
-            <div class="gift-ribbon-h"></div>
-            <div class="gift-bow"></div>
-          </div>
-
-          <div class="letter" id="miniLetter">
-            <h3 style="margin-top:0; color:#ff5d9e;">你收到一张小卡片 💌</h3>
-            <p class="mini-note">
-              恭喜解锁今日隐藏礼物：<br>
-              一份专属生日祝福 + 一点点被偏爱的证据。
-            </p>
-          </div>
+        <div class="card">
+          <b>系统追加消息：</b><br><br>
+          既然都辛苦打完这四个字了，那就认真祝你一下。<br>
+          希望新的一岁，想做的事都敢做，想见的人都能见到，
+          快乐比倒霉多一点，钱比烦恼多很多。<br><br>
+          生日快乐 🎂
         </div>
 
-        <div class="actions">
-          <button id="openGiftBtn">拆礼物</button>
-          <button id="toCardBtn" class="ghost hidden">打开生日卡</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 最终卡片 -->
-    <section class="screen" id="screen4">
-      <div class="panel">
-        <h2>生日卡片已送达 💖</h2>
-        <p>最后这一页，是写给你的。</p>
-
-        <div class="card-letter">
-          <p><strong>To：jj</strong></p>
-          <p>
-            生日快乐呀！虽然今年我们没有在同一个地方一起过生日，
-            但我还是想让你知道，今天的你真的很值得被认真庆祝。
-          </p>
-          <p>
-            希望你新的一岁可以继续做自己喜欢的事，见想见的人，
-            拥有很多很多小开心，也在偶尔累的时候被温柔接住。
-          </p>
-          <p>
-            愿你接下来一年，平安、自由、顺利、发光，
-            也愿所有你期待的事情，都慢慢向你靠近。
-          </p>
-          <p>
-            最后再说一次——<br>
-            <strong style="color:#ff5d9e;">生日快乐！！🎂🎉💗</strong>
-          </p>
-          <div class="sign">—— 朱怡江</div>
-        </div>
-
-        <div class="actions">
-          <button id="replayBtn">再玩一遍</button>
-        </div>
-      </div>
-    </section>
+        <button type="button" class="restart" id="restartBtn">再折磨自己一次</button>
+      </section>
+    </main>
   </div>
+</div>
 
-  <script>
-    const screens = document.querySelectorAll(".screen");
+<script>
+(() => {
+  const chars = [
+    "睡","哈","生","钱",
+    "啊","？","鱼","日",
+    "快","疯","吃","行",
+    "猫","乐","再","算"
+  ];
+  const target = ["生","日","快","乐"];
+  const wrongLines = [
+    "这个字跟生日有什么关系？",
+    "系统正在假装理解你的选择。",
+    "不是它。寿星请保持冷静。",
+    "你离成功只差：选对。",
+    "网页沉默了两秒，并否定了你的答案。",
+    "这个选择很有个性，但不正确。"
+  ];
 
-    function showScreen(id) {
-      screens.forEach(screen => screen.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+  let index = 0;
+  let typed = [];
+  let initialized = false;
 
-    // 漂浮爱心
-    const floating = document.getElementById("floating");
-    const heartList = ["💗", "🎀", "✨", "💖", "🌸"];
-    for (let i = 0; i < 18; i++) {
-      const span = document.createElement("span");
-      span.className = "heart";
-      span.textContent = heartList[Math.floor(Math.random() * heartList.length)];
-      span.style.left = Math.random() * 100 + "vw";
-      span.style.animationDuration = 8 + Math.random() * 8 + "s";
-      span.style.animationDelay = Math.random() * 6 + "s";
-      span.style.fontSize = 14 + Math.random() * 18 + "px";
-      floating.appendChild(span);
-    }
+  const grid = document.getElementById("grid");
+  const screen = document.getElementById("screen");
+  const consoleEl = document.getElementById("console");
+  const result = document.getElementById("result");
 
-    function burstConfetti(count = 48) {
-      const colors = ["#ff7fb3", "#ffd45b", "#62bff7", "#8ce3b0", "#c7a7ff", "#ff9d7a"];
-      for (let i = 0; i < count; i++) {
-        const c = document.createElement("div");
-        c.className = "confetti";
-        c.style.left = Math.random() * 100 + "vw";
-        c.style.background = colors[Math.floor(Math.random() * colors.length)];
-        c.style.animationDuration = 2 + Math.random() * 1.6 + "s";
-        c.style.transform = `rotate(${Math.random() * 360}deg)`;
-        document.body.appendChild(c);
-        setTimeout(() => c.remove(), 3500);
-      }
-    }
-
-    // 按钮
-    document.getElementById("startBtn").addEventListener("click", () => {
-      showScreen("screen2");
+  function buildGrid(){
+    grid.innerHTML = "";
+    chars.forEach((ch,i)=>{
+      const el = document.createElement("div");
+      el.className = "key";
+      el.textContent = ch;
+      el.dataset.index = i;
+      el.setAttribute("aria-hidden","true");
+      grid.appendChild(el);
     });
+    render();
+  }
 
-    // 蛋糕逻辑
-    const cake = document.getElementById("cake");
-    const biteMark = document.getElementById("biteMark");
-    const cakeText = document.getElementById("cakeText");
-    const blowBtn = document.getElementById("blowBtn");
-    const eatBtn = document.getElementById("eatBtn");
-    const toGiftBtn = document.getElementById("toGiftBtn");
+  function render(){
+    [...grid.children].forEach((el,i)=>el.classList.toggle("selected", i===index));
+    for(let i=0;i<4;i++){
+      const slot = document.getElementById("slot"+i);
+      slot.textContent = typed[i] || "＿";
+      slot.classList.toggle("filled", Boolean(typed[i]));
+    }
+  }
 
-    let biteCount = 0;
+  function move(dir){
+    const row = Math.floor(index/4);
+    const col = index%4;
+    let r=row,c=col;
+    if(dir==="up") r=(row+3)%4;
+    if(dir==="down") r=(row+1)%4;
+    if(dir==="left") c=(col+3)%4;
+    if(dir==="right") c=(col+1)%4;
+    index=r*4+c;
+    render();
+  }
 
-    blowBtn.addEventListener("click", () => {
-      cake.classList.add("blown");
-      cakeText.innerHTML = "蜡烛吹灭啦！愿望已经打包发送 ✨<br>现在可以开始吃蛋糕了～";
-      blowBtn.disabled = true;
-      eatBtn.disabled = false;
-      burstConfetti(36);
-    });
+  function select(){
+    if(typed.length>=4) return;
+    const chosen = chars[index];
+    const needed = target[typed.length];
 
-    eatBtn.addEventListener("click", () => {
-      biteCount++;
-      const sizes = [0, 24, 40, 56, 72];
-      biteMark.style.width = sizes[biteCount] + "px";
-      biteMark.style.height = sizes[biteCount] + "px";
-
-      if (biteCount === 1) {
-        cakeText.innerHTML = "第一口，生日蛋糕当然是你的！😋";
-      } else if (biteCount === 2) {
-        cakeText.innerHTML = "第二口，说明今天真的很开心。";
-      } else if (biteCount === 3) {
-        cakeText.innerHTML = "第三口，已经吃得差不多啦～";
+    if(chosen === needed){
+      typed.push(chosen);
+      render();
+      if(typed.length < 4){
+        consoleEl.textContent = `系统：很好。现在去找「${target[typed.length]}」。`;
       } else {
-        cakeText.innerHTML = "蛋糕吃完啦！下面去拆礼物吧 🎁";
-        eatBtn.disabled = true;
-        toGiftBtn.classList.remove("hidden");
-        burstConfetti(24);
+        consoleEl.textContent = "系统：……居然真的完成了。";
+        celebrate();
       }
-    });
-
-    toGiftBtn.addEventListener("click", () => {
-      showScreen("screen3");
-    });
-
-    // 礼物盒逻辑
-    const giftBox = document.getElementById("giftBox");
-    const openGiftBtn = document.getElementById("openGiftBtn");
-    const miniLetter = document.getElementById("miniLetter");
-    const toCardBtn = document.getElementById("toCardBtn");
-    const giftText = document.getElementById("giftText");
-    let giftOpened = false;
-
-    function openGift() {
-      if (giftOpened) return;
-      giftOpened = true;
-      giftBox.classList.add("opened");
-      miniLetter.classList.add("show");
-      giftText.innerHTML = "礼物盒打开啦！里面藏着一张给你的卡片 💌";
-      toCardBtn.classList.remove("hidden");
-      burstConfetti(40);
-      openGiftBtn.disabled = true;
+    } else {
+      consoleEl.textContent = "系统：" + wrongLines[Math.floor(Math.random()*wrongLines.length)];
+      screen.classList.remove("shake");
+      void screen.offsetWidth;
+      screen.classList.add("shake");
     }
+  }
 
-    openGiftBtn.addEventListener("click", openGift);
-    giftBox.addEventListener("click", openGift);
+  function undo(){
+    if(!typed.length){
+      consoleEl.textContent = "系统：你还什么都没做，已经开始后悔了吗？";
+      return;
+    }
+    const gone = typed.pop();
+    render();
+    result.classList.remove("show");
+    consoleEl.textContent = `系统：已撤销「${gone}」。请重新做人。`;
+  }
 
-    toCardBtn.addEventListener("click", () => {
-      showScreen("screen4");
-      burstConfetti(60);
-    });
+  function randomHelp(){
+    if(typed.length>=4) return;
+    const needed = target[typed.length];
+    const pos = chars.indexOf(needed);
+    const r = Math.floor(pos/4)+1;
+    const c = pos%4+1;
+    consoleEl.textContent = `系统提示：目标「${needed}」大概在第 ${r} 行第 ${c} 个。已经提示得很不要脸了。`;
+  }
 
-    document.getElementById("replayBtn").addEventListener("click", () => {
-      location.reload();
-    });
-  </script>
+  function celebrate(){
+    result.classList.add("show");
+    const colors = ["#ff4d6d","#ffd166","#8ecae6","#b8f2e6","#cdb4db","#ffffff"];
+    for(let i=0;i<70;i++){
+      const p=document.createElement("div");
+      p.className="confetti";
+      p.style.left=Math.random()*100+"vw";
+      p.style.background=colors[Math.floor(Math.random()*colors.length)];
+      p.style.animationDuration=(1.8+Math.random()*1.8)+"s";
+      p.style.animationDelay=(Math.random()*.4)+"s";
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(),3800);
+    }
+    setTimeout(()=>result.scrollIntoView({behavior:"smooth",block:"start"}),250);
+  }
+
+  document.querySelectorAll("[data-move]").forEach(btn=>{
+    btn.addEventListener("click",()=>move(btn.dataset.move));
+  });
+  document.getElementById("selectBtn").addEventListener("click",select);
+  document.getElementById("undoBtn").addEventListener("click",undo);
+  document.getElementById("randomBtn").addEventListener("click",randomHelp);
+  document.getElementById("restartBtn").addEventListener("click",()=>{
+    typed=[];
+    index=0;
+    result.classList.remove("show");
+    consoleEl.textContent="系统：先找到「生」。不要乱按。";
+    render();
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+
+  document.addEventListener("keydown",(e)=>{
+    const map={ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right"};
+    if(map[e.key]){
+      e.preventDefault();
+      move(map[e.key]);
+    } else if(e.key==="Enter"){
+      e.preventDefault();
+      select();
+    }
+  });
+
+  if(!initialized){
+    initialized=true;
+    buildGrid();
+  }
+})();
+</script>
 </body>
 </html>
